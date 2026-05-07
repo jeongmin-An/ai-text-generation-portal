@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tweet Completion Portal</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(135deg, #eef6ff 0%, #f8fafc 50%, #ffffff 100%);
+            color: #0f172a;
+        }
+
+        .page {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 48px 24px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 980px;
+        }
+
+        .hero {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 28px;
+            padding: 42px;
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 999px;
+            background: #e8f4ff;
+            color: #1DA1F2;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 46px;
+            letter-spacing: -1.2px;
+            color: #0f172a;
+        }
+
+        .subtitle {
+            margin-top: 16px;
+            margin-bottom: 30px;
+            max-width: 760px;
+            font-size: 18px;
+            line-height: 1.65;
+            color: #475569;
+        }
+
+        .input-section {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 22px;
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            font-size: 15px;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 10px;
+        }
+
+        #promptInput {
+            width: 100%;
+            padding: 15px 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            font-size: 17px;
+            outline: none;
+            color: #0f172a;
+            background: white;
+        }
+
+        #promptInput:focus {
+            border-color: #1DA1F2;
+            box-shadow: 0 0 0 3px rgba(29, 161, 242, 0.14);
+        }
+
+        .quick-starters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+
+        .starter {
+            border: 1px solid #dbeafe;
+            background: #eff6ff;
+            color: #1D4ED8;
+            border-radius: 999px;
+            padding: 9px 13px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .starter:hover {
+            background: #dbeafe;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        button {
+            border: none;
+            border-radius: 14px;
+            padding: 14px 22px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        #generateBtn {
+            background: #1DA1F2;
+            color: white;
+            box-shadow: 0 10px 20px rgba(29, 161, 242, 0.25);
+        }
+
+        #generateBtn:hover {
+            background: #0d8ddb;
+            transform: translateY(-1px);
+        }
+
+        #generateBtn:disabled {
+            background: #93c5fd;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        #clearBtn {
+            background: #f1f5f9;
+            color: #334155;
+        }
+
+        #clearBtn:hover {
+            background: #e2e8f0;
+        }
+
+        .loading {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            color: #475569;
+            font-size: 15px;
+        }
+
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 3px solid #dbeafe;
+            border-top: 3px solid #1DA1F2;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .tweet-card {
+            background: #ffffff;
+            border: 1px solid #dbe3ec;
+            border-radius: 22px;
+            padding: 24px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+        }
+
+        .tweet-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #1DA1F2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 20px;
+        }
+
+        .profile-name {
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 3px;
+        }
+
+        .profile-handle {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .model-tag {
+            margin-left: auto;
+            background: #f1f5f9;
+            color: #475569;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        #result {
+            min-height: 110px;
+            white-space: pre-wrap;
+            font-size: 21px;
+            line-height: 1.55;
+            color: #111827;
+        }
+
+        .placeholder {
+            color: #94a3b8;
+        }
+
+        .tweet-footer {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            border-top: 1px solid #e5e7eb;
+            margin-top: 22px;
+            padding-top: 16px;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .note {
+            margin-top: 18px;
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 760px) {
+            .hero {
+                padding: 28px;
+            }
+
+            h1 {
+                font-size: 34px;
+            }
+
+            #result {
+                font-size: 18px;
+            }
+
+            .model-tag {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <div class="container">
+            <div class="hero">
+                <div class="badge">AI-Powered Text Generation Portal</div>
+
+                <h1>Tweet Completion Portal</h1>
+
+                <p class="subtitle">
+                    Enter a short starter phrase, and the model will continue it in a Twitter-style format.
+                    This portal uses a NanoGPT model trained on Twitter data and connects it to a Flask web interface.
+                </p>
+
+                <div class="input-section">
+                    <label for="promptInput">Starter phrase</label>
+                    <input
+                        id="promptInput"
+                        type="text"
+                        placeholder="Example: today i feel"
+                        value="today i feel"
+                    >
+
+                    <div class="quick-starters">
+                        <span class="starter" data-starter="honestly">honestly</span>
+                        <span class="starter" data-starter="today i feel">today i feel</span>
+                        <span class="starter" data-starter="i can't believe">i can't believe</span>
+                        <span class="starter" data-starter="lol i">lol i</span>
+                        <span class="starter" data-starter="this is why">this is why</span>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button id="generateBtn" onclick="generateText()">Complete Tweet</button>
+                    <button id="clearBtn" onclick="clearText()">Clear</button>
+                </div>
+
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <span>Completing your tweet with the trained model...</span>
+                </div>
+
+                <div class="tweet-card">
+                    <div class="tweet-header">
+                        <div class="avatar">T</div>
+                        <div>
+                            <div class="profile-name">Generated Tweet</div>
+                            <div class="profile-handle">@nanogpt_twitter_bot</div>
+                        </div>
+                        <div class="model-tag">Prompt-based generation</div>
+                    </div>
+
+                    <div id="result" class="placeholder">
+                        Enter a starter phrase and click “Complete Tweet.”
+                    </div>
+
+                    <div class="tweet-footer">
+                        <span>Generated locally from trained checkpoint</span>
+                        <span id="charCount">0 characters</span>
+                    </div>
+                </div>
+
+                <p class="note">
+                    Note: The generated text reflects patterns learned from the Twitter training dataset.
+                    Since the model is small, output quality may vary.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function setStarter(text) {
+            document.getElementById("promptInput").value = text;
+        }
+        document.querySelectorAll(".starter").forEach(function(item) {
+            item.addEventListener("click", function() {
+                setStarter(this.dataset.starter);
+            });
+        });
+
+        async function generateText() {
+            const button = document.getElementById("generateBtn");
+            const loading = document.getElementById("loading");
+            const resultDiv = document.getElementById("result");
+            const charCount = document.getElementById("charCount");
+            const promptInput = document.getElementById("promptInput");
+
+            const prompt = promptInput.value.trim();
+
+            button.disabled = true;
+            button.innerText = "Completing...";
+            loading.style.display = "flex";
+
+            resultDiv.classList.remove("placeholder");
+            resultDiv.innerText = "";
+            charCount.innerText = "0 characters";
+
+            try {
+                const response = await fetch("/generate", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ prompt: prompt })
+                });
+
+                const data = await response.json();
+                const text = data.generated_text || "No text was generated. Please try again.";
+
+                resultDiv.innerText = text;
+                charCount.innerText = text.length + " characters";
+            } catch (error) {
+                resultDiv.innerText = "Something went wrong while generating text.";
+                charCount.innerText = "0 characters";
+            }
+
+            loading.style.display = "none";
+            button.disabled = false;
+            button.innerText = "Complete Tweet";
+        }
+
+        function clearText() {
+            const resultDiv = document.getElementById("result");
+            const charCount = document.getElementById("charCount");
+            const promptInput = document.getElementById("promptInput");
+
+            promptInput.value = "";
+            resultDiv.classList.add("placeholder");
+            resultDiv.innerText = "Enter a starter phrase and click “Complete Tweet.”";
+            charCount.innerText = "0 characters";
+        }
+    </script>
+</body>
+</html>
