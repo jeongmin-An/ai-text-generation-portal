@@ -1,0 +1,15 @@
+Dataset analysis summary
+------------------------
+Total lines: 16556
+Non-empty lines: 16556
+HTML tag occurrences: 24891
+URL occurrences: 0
+Noise token occurrences (^^, $, %, @): 24811
+Emoji occurrences: 2504
+
+Observed issues:
+- HTML tags mixed into the text
+- Random standalone symbols such as ^^, $, %, @
+- Emojis and special symbols
+- Extra whitespace / inconsistent spacing
+- Informal conversational language and slang
